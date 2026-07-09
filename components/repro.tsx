@@ -205,18 +205,9 @@ export function Repro() {
 
       {/* DOM overlay — a SEPARATE compositor layer, on purpose: on iOS it
           visibly drifts out of sync with the canvas beacon. */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 flex flex-col items-center gap-2 pt-2 text-center font-mono">
-        <div className="text-xs text-white/60">
-          DOM counter: <span ref={domCounterRef}>0</span>{" "}
-          <span
-            ref={stallFlashRef}
-            className="text-amber-300 opacity-0 transition-opacity"
-          >
-            ⏸ 45ms stall
-          </span>
-        </div>
-        <div
-          className={`rounded px-4 py-1 text-2xl font-bold uppercase tracking-widest ${
+      <div className="pointer-events-none absolute inset-x-0 top-0 flex items-center justify-center gap-3 pt-2 font-mono text-xs">
+        <span
+          className={`rounded px-2 py-0.5 font-bold uppercase tracking-widest ${
             backend === "webgpu"
               ? "bg-red-500 text-white"
               : backend === "webgl2"
@@ -225,7 +216,16 @@ export function Repro() {
           }`}
         >
           {backend === "pending" ? "negotiating…" : backend}
-        </div>
+        </span>
+        <span className="text-white/60">
+          DOM counter: <span ref={domCounterRef}>0</span>
+        </span>
+        <span
+          ref={stallFlashRef}
+          className="text-amber-300 opacity-0 transition-opacity"
+        >
+          ⏸ 45ms stall
+        </span>
       </div>
 
       <div className="pointer-events-none absolute inset-x-0 bottom-8 flex flex-col items-center gap-2 px-6 text-center font-mono text-xs text-white/70">
