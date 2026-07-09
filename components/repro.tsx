@@ -104,12 +104,12 @@ export function Repro() {
     // bug is tap-correlated in the wild because iOS's own gesture handling
     // produces exactly this stall on every touch.
     const stall = () => {
+      // Stays rendered until the next stall replaces it — the frame stamp
+      // is the recency indicator, and it names the trace row to inspect.
       const flash = stallFlashRef.current
       if (flash) {
+        flash.textContent = `⏸ ${STALL_MS}ms stall @ ${frame}`
         flash.style.opacity = "1"
-        setTimeout(() => {
-          flash.style.opacity = "0"
-        }, 150)
       }
       const end = performance.now() + STALL_MS
       while (performance.now() < end) {
@@ -220,12 +220,7 @@ export function Repro() {
         <span className="text-white/60">
           DOM counter: <span ref={domCounterRef}>0</span>
         </span>
-        <span
-          ref={stallFlashRef}
-          className="text-amber-300 opacity-0 transition-opacity"
-        >
-          ⏸ 45ms stall
-        </span>
+        <span ref={stallFlashRef} className="text-amber-300 opacity-0" />
       </div>
 
       <div className="pointer-events-none absolute inset-x-0 bottom-8 flex flex-col items-center gap-2 px-6 text-center font-mono text-xs text-white/70">
