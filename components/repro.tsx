@@ -47,12 +47,6 @@ export function Repro() {
   const stallFlashRef = useRef<HTMLSpanElement>(null)
   const [backend, setBackend] = useState<Backend>("pending")
   const [requested, setRequested] = useState<string>("webgpu")
-  const [hasGpu, setHasGpu] = useState<boolean | null>(null)
-  // Why-is-it-not-WebGPU diagnostics: WebGPU is a secure-context API (absent
-  // over LAN http), and even present it can refuse an adapter. Name the
-  // closed gate instead of guessing.
-  const [secure, setSecure] = useState<boolean | null>(null)
-  const [adapter, setAdapter] = useState<string>("…")
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -62,20 +56,6 @@ export function Repro() {
     const wantWebGL = params.get("backend") === "webgl"
     queueMicrotask(() => {
       setRequested(wantWebGL ? "webgl" : "webgpu")
-      setHasGpu("gpu" in navigator)
-      setSecure(window.isSecureContext)
-      if ("gpu" in navigator) {
-        ;(
-          navigator as unknown as {
-            gpu: { requestAdapter(): Promise<object | null> }
-          }
-        ).gpu
-          .requestAdapter()
-          .then((a) => setAdapter(a ? "granted" : "REFUSED (null)"))
-          .catch((e: unknown) => setAdapter(`threw: ${String(e)}`))
-      } else {
-        setAdapter("n/a — no navigator.gpu")
-      }
     })
 
     const renderer = new THREE.WebGPURenderer({
@@ -225,7 +205,16 @@ export function Repro() {
 
       {/* DOM overlay — a SEPARATE compositor layer, on purpose: on iOS it
           visibly drifts out of sync with the canvas beacon. */}
-      <div className="pointer-events-none absolute inset-x-0 top-14 flex flex-col items-center gap-2 text-center font-mono">
+      <div className="pointer-events-none absolute inset-x-0 top-0 flex flex-col items-center gap-2 pt-2 text-center font-mono">
+        <div className="text-xs text-white/60">
+          DOM counter: <span ref={domCounterRef}>0</span>{" "}
+          <span
+            ref={stallFlashRef}
+            className="text-amber-300 opacity-0 transition-opacity"
+          >
+            ⏸ 45ms stall
+          </span>
+        </div>
         <div
           className={`rounded px-4 py-1 text-2xl font-bold uppercase tracking-widest ${
             backend === "webgpu"
@@ -236,21 +225,6 @@ export function Repro() {
           }`}
         >
           {backend === "pending" ? "negotiating…" : backend}
-        </div>
-        <div className="text-xs text-white/60">
-          requested: {requested} · navigator.gpu:{" "}
-          {hasGpu === null ? "…" : hasGpu ? "yes" : "no"} · secureContext:{" "}
-          {secure === null ? "…" : secure ? "yes" : "NO ← webgpu impossible"}
-        </div>
-        <div className="text-xs text-white/60">adapter: {adapter}</div>
-        <div className="text-xs text-white/60">
-          DOM counter: <span ref={domCounterRef}>0</span>{" "}
-          <span
-            ref={stallFlashRef}
-            className="text-amber-300 opacity-0 transition-opacity"
-          >
-            ⏸ 45ms stall
-          </span>
         </div>
       </div>
 
