@@ -124,11 +124,16 @@ export function Repro() {
     const drawLabel = () => {
       labelCtx.fillStyle = "#1d1a2e"
       labelCtx.fillRect(0, 0, label.width, label.height)
-      labelCtx.fillStyle = "#ffffff"
-      labelCtx.font = "700 190px ui-monospace, Menlo, monospace"
       labelCtx.textAlign = "center"
       labelCtx.textBaseline = "middle"
-      labelCtx.fillText(String(frame), label.width / 2, label.height / 2 + 8)
+      // Caption inside the texture so the label travels with the layer it
+      // proves: this number is the frame count, painted in the CANVAS.
+      labelCtx.fillStyle = "#8e88ab"
+      labelCtx.font = "700 34px ui-monospace, Menlo, monospace"
+      labelCtx.fillText("FRAME № — CANVAS LAYER", label.width / 2, 38)
+      labelCtx.fillStyle = "#ffffff"
+      labelCtx.font = "700 165px ui-monospace, Menlo, monospace"
+      labelCtx.fillText(String(frame), label.width / 2, label.height / 2 + 40)
       labelTex.needsUpdate = true
     }
 
@@ -218,7 +223,7 @@ export function Repro() {
           {backend === "pending" ? "negotiating…" : backend}
         </span>
         <span className="text-white/60">
-          DOM counter: <span ref={domCounterRef}>0</span>
+          frame № — DOM layer: <span ref={domCounterRef}>0</span>
         </span>
         <span ref={stallFlashRef} className="text-amber-300 opacity-0" />
       </div>
